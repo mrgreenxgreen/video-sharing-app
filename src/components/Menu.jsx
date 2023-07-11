@@ -16,7 +16,9 @@ import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
+import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
 import {Link} from 'react-router-dom';
+
 
 //Styled Components
 const Container = styled.div`
@@ -80,16 +82,17 @@ const Title = styled.h2`
 `;
 
 
-const Menu = ()=>{
+const Menu = ({darkMode, setDarkMode})=>{
 
     return (
       <Container>
         <Wrapper>
+        <Link to="/" style={{textDecoration:"none", color:"inherit"}}>
             <Logo>
             <Image src={YTLogo} alt="x"/>
-                YouTube
+                WeTube
             </Logo>
-         
+        </Link> 
         
             <Item>
                 <HomeIcon/>
@@ -153,6 +156,10 @@ const Menu = ()=>{
             <Item>
                 <HelpOutlineOutlinedIcon />
                 Help
+            </Item>
+            <Item onClick={()=>setDarkMode(!darkMode)}>
+                <SettingsBrightnessIcon/>
+                {darkMode ? "Light": "Dark"} Mode
             </Item>
             </Wrapper>
         </Container>
