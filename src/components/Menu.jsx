@@ -118,7 +118,7 @@ const Menu = ({darkMode, setDarkMode})=>{
             <Hr />
             <Login>
                 Sign in to like videos, comment, and subscribe.
-                <Button><AccountCircleOutlinedIcon />Sign In</Button>
+                <Button><AccountCircleOutlinedIcon /><Link to="signin" style={{textDecoration:"none",color:"inherit"}} >Sign In</Link></Button>
             </Login>
             <Item>
                 <LibraryMusicOutlinedIcon />
