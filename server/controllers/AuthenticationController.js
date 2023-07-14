@@ -1,21 +1,112 @@
 import mongoose from "mongoose";
 import User from "../models/User.js"
 import bcrypt from "bcryptjs";
+import {createError} from "../utils/error.js"
+import jwt from "jsonwebtoken";
 
-export const signup = async (req, res) =>{
+//sign up controller
+//TO DO: separate business logic from web/http logic
+export const signup = async (req, res, next) =>{
    // console.log(req.body);
     try {
         const salt = bcrypt.genSaltSync(10);
         const hash = bcrypt.hashSync(req.body.password, salt);
         const newUser = new User({
-            ...req.body,
-            password: hash
+            name:req.body.name,
+            email:req.body.email,
+            password:hash,
         });
 
         newUser.save();
-        const x = "new user created!"
-        res.status(200).json("created");
+        res.status(200).json("User has been created");
     }catch(err){
-        
+        next(err);
+    };
+};
+//sign in controller
+// export const signin = async (req, res, next) => {
+//     try {
+//         const user = await User.findOne({name:req.body.name});
+//         if (!user) {
+//           return next(createError(404, "User not found!"));
+//         }
+
+//         const isCorrect = await bcrypt.compare(req.body.password, user.password);
+
+//         if(!isCorrect) return next(createError(400, "Wrong Credentials!"));
+
+//         const token = jwt.sign({id:user._id}, process.env.JWT);
+//         const {password, ...others} = user._doc;
+
+//         res.cookie("access_token", token, {
+//             httpOnly:true,
+//         })
+//             .status(200)
+//             .json(others);
+//     } catch (err) {
+//         next(err);
+//     }
+// };
+
+export const signin = async (req,res,next) =>{
+    try{
+        const user = await User.findOne({ username:req.body.name })
+        if(!user){
+            const error = createError(404,"user not found!");
+            return res.status(404).json(error);
+        }
+        const isPasswordCorrect = await bcrypt.compare(req.body.password,user.password);
+        if(!isPasswordCorrect){
+            const error = createError(400, "Wrong password or username");
+            return res.status(400).json(error);
+        }   
+
+            // const token = jwt.sign(
+            //     {id:user._id, isAdmin: user.isAdmin},
+            //      process.env.JWT); 
+ 
+            // const {password, isAdmin, ...otherDetails } = user._doc;
+
+            res
+                .cookie("access_token",token,{
+                    httpOnly:true,
+                })
+                .status(200)
+                .json({...otherDetails});
+        //  res.status(200).json(user);
+    } catch(err){
+        next(err);
+    }
+}
+
+
+
+//google authentication controller
+export const googleAuth = async(req, res, next)=>{
+    try{
+        const user = await User.findOne({email: req.body.email});
+        if(user){
+            const token = jwt.sign({id: user._id}, process.env.JWT);
+            res.cookie("access_token", token, {
+                httpOnly:true,
+            })
+                .status(200)
+                .json(user._doc);
+        }else {
+            const newUser = new User({
+                ...req.body,
+                fromGoogle:true,
+            });
+            const savedUser = await newUser.save();
+            const token = jwt.sign({id: savedUser._id}, process.env.JWT);
+            
+            res.cookie("access_token", token,{
+                httpOnly:true,
+            })
+                .status(200)
+                .json(savedUser._doc);
+        }
+    }catch (err){
+        next(err);
     }
 }
