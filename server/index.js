@@ -25,7 +25,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/videos",videoRoutes);
 app.use("/api/comments", commentRoutes);
 app.get("/",(req, res)=>{
-res.status(200).json()
+res.status(200).json("Hello")
 })
 
 //error handler
